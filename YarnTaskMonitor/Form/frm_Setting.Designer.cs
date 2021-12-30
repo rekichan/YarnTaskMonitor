@@ -39,6 +39,8 @@ namespace YarnTaskMonitor
             this.txb_Table = new System.Windows.Forms.TextBox();
             this.txb_AutoInterval = new System.Windows.Forms.TextBox();
             this.chk_TaskBar = new System.Windows.Forms.CheckBox();
+            this.txb_YarnWebUrl = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -53,7 +55,7 @@ namespace YarnTaskMonitor
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 80);
+            this.label2.Location = new System.Drawing.Point(12, 96);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(73, 17);
             this.label2.TabIndex = 1;
@@ -70,10 +72,10 @@ namespace YarnTaskMonitor
             // 
             // txb_ConnectionCmd
             // 
-            this.txb_ConnectionCmd.Location = new System.Drawing.Point(12, 100);
+            this.txb_ConnectionCmd.Location = new System.Drawing.Point(12, 116);
             this.txb_ConnectionCmd.Multiline = true;
             this.txb_ConnectionCmd.Name = "txb_ConnectionCmd";
-            this.txb_ConnectionCmd.Size = new System.Drawing.Size(360, 149);
+            this.txb_ConnectionCmd.Size = new System.Drawing.Size(360, 55);
             this.txb_ConnectionCmd.TabIndex = 3;
             // 
             // btn_Save
@@ -120,11 +122,30 @@ namespace YarnTaskMonitor
             this.chk_TaskBar.Text = "最小化到系统托盘";
             this.chk_TaskBar.UseVisualStyleBackColor = true;
             // 
+            // txb_YarnWebUrl
+            // 
+            this.txb_YarnWebUrl.Location = new System.Drawing.Point(12, 194);
+            this.txb_YarnWebUrl.Multiline = true;
+            this.txb_YarnWebUrl.Name = "txb_YarnWebUrl";
+            this.txb_YarnWebUrl.Size = new System.Drawing.Size(360, 55);
+            this.txb_YarnWebUrl.TabIndex = 10;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(12, 174);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(137, 17);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Yarn Running Web Url";
+            // 
             // frm_Setting
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(384, 261);
+            this.Controls.Add(this.txb_YarnWebUrl);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.chk_TaskBar);
             this.Controls.Add(this.txb_AutoInterval);
             this.Controls.Add(this.txb_Table);
@@ -162,5 +183,7 @@ namespace YarnTaskMonitor
         private System.Windows.Forms.TextBox txb_Table;
         private System.Windows.Forms.TextBox txb_AutoInterval;
         private System.Windows.Forms.CheckBox chk_TaskBar;
+        private System.Windows.Forms.TextBox txb_YarnWebUrl;
+        private System.Windows.Forms.Label label4;
     }
 }

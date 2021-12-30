@@ -18,7 +18,10 @@ namespace YarnTaskMonitor
         private cls_Config config;
         private cls_Logger logger;
         private bool auto;
+        private bool firstRun = true;
         private bool forceClose;
+        private string curSuffix;
+        private string lastDay;
         #endregion
 
         #region API
@@ -61,26 +64,73 @@ namespace YarnTaskMonitor
             {
                 this.Visible = false;
                 e.Cancel = true;
+                return;
             }
 
             auto = false;
 
             if (conn != null)
                 conn.Close();
+
+            ico_Main.Visible = false;
         }
         #endregion
 
         #region Event
+        private void cht_Main_CursorPositionChanged(object sender, System.Windows.Forms.DataVisualization.Charting.CursorEventArgs e)
+        {
+            //用于控制图表同步放大
+            System.Windows.Forms.DataVisualization.Charting.Chart cht = sender as System.Windows.Forms.DataVisualization.Charting.Chart;
+            double pos;
+            double size;
+            if (cht.ChartAreas["ca_Memory"].AxisX.ScaleView.Position != double.NaN)
+            {
+                pos = cht.ChartAreas["ca_Memory"].AxisX.ScaleView.Position;
+                size = cht.ChartAreas["ca_Memory"].AxisX.ScaleView.Size;
+                cht.ChartAreas["ca_Cores"].AxisX.ScaleView.Position = pos;
+                cht.ChartAreas["ca_Cores"].AxisX.ScaleView.Size = size;
+            }
+            else if (cht.ChartAreas["ca_Cores"].AxisX.ScaleView.Position != double.NaN)
+            {
+                pos = cht.ChartAreas["ca_Cores"].AxisX.ScaleView.Position;
+                size = cht.ChartAreas["ca_Cores"].AxisX.ScaleView.Size;
+                cht.ChartAreas["ca_Memory"].AxisX.ScaleView.Position = pos;
+                cht.ChartAreas["ca_Memory"].AxisX.ScaleView.Size = size;
+            }
+        }
+
+        private void cht_Main_MouseClick(object sender, MouseEventArgs e)
+        {
+            //用于控制图标同步最小化到初始状态
+            System.Windows.Forms.DataVisualization.Charting.Chart cht = sender as System.Windows.Forms.DataVisualization.Charting.Chart;
+            if (e.Button == MouseButtons.Right)
+            {
+                cht.ChartAreas["ca_Memory"].AxisX.ScaleView.ZoomReset(0);
+                cht.ChartAreas["ca_Cores"].AxisX.ScaleView.ZoomReset(0);
+            }
+        }
+
         private void tsb_Truncate_Click(object sender, EventArgs e)
         {
             DialogResult dr = MessageBox.Show("确定要清空数据库?", "Q", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dr == DialogResult.No)
                 return;
 
-            string sql = string.Format("truncate table {0}", cls_Common.table);
-            MySqlCommand cmd = new MySqlCommand(sql, conn);//实例化MySQL指令对象
-            cmd.ExecuteNonQuery();
-            cmd.Dispose();
+            DateTime dt = mc_Main.SelectionEnd;
+            string selectedDay = dt.ToShortDateString().Replace("/", "");
+            string sql = string.Format("truncate table {0}", cls_Common.table+ selectedDay);
+            try
+            {
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch(Exception ex)
+            {
+                logger.WriteExceptionLog(ex);
+                MessageBox.Show("表清空失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void dgv_Trace_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -100,33 +150,55 @@ namespace YarnTaskMonitor
 
         private void tsmi_ObserveResource_Click(object sender, EventArgs e)
         {
-            cht_Main.Series["Memory"].Points.Clear();
-            cht_Main.Series["vCores"].Points.Clear();
-            cht_Main.Series["Containers"].Points.Clear();
-
-            int row = dgv_Trace.SelectedCells[0].RowIndex;
-            string taskId = (string)dgv_Trace.Rows[row].Cells[0].Value;
-            string taskName = (string)dgv_Trace.Rows[row].Cells[1].Value;
-            string sql = "select containers,cores,memory,insertTime from " + cls_Common.table + " where taskId = '" + taskId + "' and taskName  = '" + taskName + "' order by insertTime asc";
-            MySqlCommand cmd = new MySqlCommand(sql, conn);
-            MySqlDataReader reader = cmd.ExecuteReader();
-            List<int> containers = new List<int>();
             List<int> cores = new List<int>();
             List<int> memory = new List<int>();
             List<DateTime> time = new List<DateTime>();
-            while (reader.Read())
+            DateTime dt = mc_Main.SelectionEnd;
+            string selectedDay = dt.ToShortDateString().Replace("/","");
+
+            //取出右键选择项
+            int row = dgv_Trace.SelectedCells[0].RowIndex;
+            string taskId = (string)dgv_Trace.Rows[row].Cells[0].Value;
+            string taskName = (string)dgv_Trace.Rows[row].Cells[1].Value;
+            taskName = taskName.Replace("'", "\\'");
+
+            try
             {
-                containers.Add((int)reader[0]);
-                cores.Add((int)reader[1]);
-                memory.Add((int)reader[2]);
-                string buf = reader[3].ToString();
-                time.Add(DateTime.Parse(buf));
+                string sql = "select cores,memory,insertTime from " + cls_Common.table + selectedDay + " where taskId = '" + taskId + "' and taskName  = '" + taskName + "' order by insertTime asc";
+                using (MySqlConnection queryConn = new MySqlConnection(cls_Common.connetionCmd))
+                {
+                    queryConn.Open();
+                    using (MySqlCommand cmd = new MySqlCommand(sql, queryConn))
+                    {
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                cores.Add((int)reader[0]);
+                                memory.Add((int)reader[1]);
+                                string buf = reader[2].ToString();
+                                time.Add(DateTime.Parse(buf));
+                            }
+                            reader.Close();
+                        }
+                    }
+                    queryConn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.WriteExceptionLog(ex);
+                MessageBox.Show("查询失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
+            //清空表格数据
+            cht_Main.Series["Memory"].Points.Clear();
+            cht_Main.Series["vCores"].Points.Clear();
+
+            //填充图表
             cht_Main.Series["Memory"].Points.DataBindXY(time, memory);
             cht_Main.Series["vCores"].Points.DataBindXY(time, cores);
-            cht_Main.Series["Containers"].Points.DataBindXY(time, containers);
-            reader.Close();
         }
 
         private void ico_Main_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -137,15 +209,43 @@ namespace YarnTaskMonitor
 
         private void tsb_GetTask_Click(object sender, EventArgs e)
         {
-            string sql = "select taskId,taskName,max(containers),avg(containers),max(cores),avg(cores),max(memory),avg(memory) from " + cls_Common.table + " group by taskId,taskName";
-            MySqlDataAdapter mda = new MySqlDataAdapter(sql, conn);
-            DataTable dt = new DataTable();
-            mda.Fill(dt);
-            dgv_Trace.DataSource = dt;
-            dgv_Trace.Columns[0].Width = 195;
-            dgv_Trace.Columns[1].Width = 195;
-            dgv_Trace.Columns[dgv_Trace.Columns.Count - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            mda.Dispose();
+            DateTime dt = mc_Main.SelectionEnd;
+            string selectedDay = dt.ToShortDateString().Replace("/", "");
+
+            try
+            {
+                using (MySqlConnection queryConn = new MySqlConnection(cls_Common.connetionCmd))
+                {
+                    queryConn.Open();
+                    string sql = "select " +
+                        "taskId," +//0
+                        "taskName," +//1
+                        "avg(cores)," +//2
+                        "avg(memory) as `avg(mem)`," +//3
+                        "min(startTime) as startTime," +//4
+                        "date_format(CONVERT_TZ(from_unixtime(UNIX_TIMESTAMP(max(insertTime))- UNIX_TIMESTAMP(min(startTime))),'+08:00','+00:00'),'%m/%d %H:%i:%s') as duration " +//5
+                        "from " + cls_Common.table+ selectedDay +
+                        " group by taskId,taskName";
+                    using (MySqlDataAdapter mda = new MySqlDataAdapter(sql, queryConn))
+                    {
+                        DataTable data = new DataTable();
+                        mda.Fill(data);
+                        dgv_Trace.DataSource = data;
+                        dgv_Trace.Columns[0].Width = 218;
+                        dgv_Trace.Columns[1].Width = 186;
+                        dgv_Trace.Columns[2].Width = 70;
+                        dgv_Trace.Columns[3].Width = 70;
+                        dgv_Trace.Columns[4].Width = 130;
+                        dgv_Trace.Columns[dgv_Trace.Columns.Count - 1].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    }
+                    queryConn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.WriteExceptionLog(ex);
+                MessageBox.Show("查询失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void tsmi_ShowMain_Click(object sender, EventArgs e)
@@ -173,7 +273,7 @@ namespace YarnTaskMonitor
             else
             {
                 int interval = Convert.ToInt32(cls_Common.autoInterval);
-                if (interval <1000)
+                if (interval < 1000)
                 {
                     MessageBox.Show("自动采集间隔应>=5000ms", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -207,6 +307,62 @@ namespace YarnTaskMonitor
 
         #region Function
         /// <summary>
+        /// 删除数据表
+        /// </summary>
+        /// <param name="tableName">数据表</param>
+        /// <returns></returns>
+        private bool DropMySQLTable(string tableName)
+        {
+            try
+            {
+                string sql = string.Format("drop table if exists {0}", tableName);
+                using (MySqlCommand mda = new MySqlCommand(sql, conn))
+                {
+                    mda.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.WriteExceptionLog(ex);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 创建数据表
+        /// </summary>
+        /// <param name="tableName">数据表</param>
+        /// <returns></returns>
+        private bool CreateMySQLTable(string tableName)
+        {
+            try
+            {
+                string sql = string.Format("create table if not exists {0} (" +
+                    "taskid varchar(50) ," +
+                    "taskname varchar(100) ," +
+                    "tasktype varchar(20) ," +
+                    "queue varchar(30) ," +
+                    "starttime varchar(50) ," +
+                    "containers int ," +
+                    "cores int ," +
+                    "memory int ," +
+                    "inserttime varchar(50)) " +
+                    "engine=innodb default charset=utf8mb3", tableName);
+                using (MySqlCommand mda = new MySqlCommand(sql, conn))
+                {
+                    mda.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.WriteExceptionLog(ex);
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// 初始化MySQL连接
         /// </summary>
         /// <returns></returns>
@@ -238,6 +394,7 @@ namespace YarnTaskMonitor
             cls_Common.table = config.IniReadValue("setting", "table", "");
             cls_Common.autoInterval = config.IniReadValue("setting", "autoInterval", "5000");
             cls_Common.taskBar = config.IniReadValue("setting", "taskBar", "false");
+            cls_Common.yarnWebUrl = config.IniReadValue("setting", "yarnWebUrl", "");
         }
 
         /// <summary>
@@ -257,7 +414,8 @@ namespace YarnTaskMonitor
         /// <returns></returns>
         private string CatchHtml()
         {
-            string url = "http://slave33.bl.bigdata:8088/cluster/apps/RUNNING";//指定yarn application url
+            //"http://slave33.bl.bigdata:8088/cluster/apps/RUNNING"
+            string url = cls_Common.yarnWebUrl;//指定yarn application url
             string html;
             try
             {
@@ -307,8 +465,8 @@ namespace YarnTaskMonitor
             MatchCollection mc = Regex.Matches(src, @"<td>[A-Z a-z 0-9 .]+</td>");
             string curContainers = mc[4].Value.Replace("<td>", "").Replace("</td>", "");
             string curMemory = mc[5].Value.Replace("<td>", "").Replace("</td>", "").ToUpper();
-            int curMem = Convert.ToInt32( Regex.Match(curMemory, @"[1-9]+").Value);
-            if (curMemory.ToUpper().Contains("TB"))
+            double curMem = Convert.ToDouble(Regex.Match(curMemory, @"[0-9 .]+").Value);
+            if (curMemory.Contains("TB"))
                 curMem = curMem * 1024;
             curMemory = curMem.ToString();
             string curCores = mc[8].Value.Replace("<td>", "").Replace("</td>", "");
@@ -335,13 +493,18 @@ namespace YarnTaskMonitor
                     //"31744",11
                     //"<br title='10.0'> <div class='ui-progressbar ui-widget ui-widget-content ui-corner-all' title='10.0%'> <div class='ui-progressbar-value ui-widget-header ui-corner-left' style='width:10.0%'> </div> </div>","<a href='http://slave33.bl.bigdata:8088/proxy/application_1639795714599_36499/'>ApplicationMaster</a>"
 
-                    //20211230 taskName引发的exception：因为分割','导致索引发生变化解析时间戳报错
+                    //>>>>
+                    //20211230 taskName引发的exception：因为分割","导致索引发生变化解析时间戳报错
                     //"CREATE TABLE recommendat...date,category_sid(Stage-1)"
+
+                    //20211231 taskName引发的exception：因为字段中存在"'"导致sql错误
+                    //"SELECT order_no,req_Ext FROM sd...00:00:00')(Stage-1)"
+                    //<<<<
                     string sub = htmls[i].Replace("\\", "");
                     string[] cols = Regex.Split(sub, "\",\"");
                     string buf = Regex.Match(cols[0], @">[a-z _ 0-9]+<").Value;//正则匹配taskId
                     string taskId = buf.Substring(1, buf.Length - 2);
-                    string taskName = cols[2];
+                    string taskName = cols[2].Replace("'", "\\'");//防止插入字段中包含'
                     string taskType = cols[3];
                     string queue = cols[4];
                     string startTime = Ts2Date(cols[5]);
@@ -349,16 +512,18 @@ namespace YarnTaskMonitor
                     string cores = cols[10];
                     string memory = cols[11];
                     int mem = Convert.ToInt32(memory);
-                    memory=Math.Round(mem / 1024.0, 4).ToString();
-                    string sql = string.Format("insert into {9} values ('{0}','{1}','{2}','{3}','{4}',{5},{6},{7},'{8}')", taskId, taskName, taskType, queue, startTime, containers, cores, memory, DateTime.Now.ToString(),cls_Common.table);
+                    memory = Math.Round(mem / 1024.0, 4).ToString();
+                    string sql = string.Format("insert into {9} values ('{0}','{1}','{2}','{3}','{4}',{5},{6},{7},'{8}')", taskId, taskName, taskType, queue, startTime, containers, cores, memory, DateTime.Now.ToString(), cls_Common.table + curSuffix);
                     cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
                 }
                 //写入一次Multi信息就行了,a1是为了保证第一位
-                string multiSql = string.Format("insert into {9} values ('{0}','{1}','{2}','{3}','{4}',{5},{6},{7},'{8}')", "a1", "Multi", "Multi", "Multi", "Multi", curContainers, curCores, curMemory, DateTime.Now.ToString(), cls_Common.table);
+                string multiSql = string.Format("insert into {9} values ('{0}','{1}','{2}','{3}','{4}',{5},{6},{7},'{8}')", "a1", "Multi", "Multi", "Multi", DateTime.Now.ToString(), curContainers, curCores, curMemory, DateTime.Now.ToString(), cls_Common.table + curSuffix);
                 cmd.CommandText = multiSql;
                 cmd.ExecuteNonQuery();
                 tx.Commit();//使用事务主要是为了insert batch提高效率
+                tx.Dispose();
+                cmd.Dispose();
             }
             catch (Exception ex)
             {
@@ -386,7 +551,7 @@ namespace YarnTaskMonitor
         private void AutoLockUI(bool enable)
         {
             tsb_Collect.Enabled = enable;
-            tsb_ConnectDatabase.Enabled = enable;
+            //tsb_ConnectDatabase.Enabled = enable;
             tsb_Setting.Enabled = enable;
             tsb_Truncate.Enabled = enable;
             tsb_AutoCollect.Text = enable ? "自动采集" : "停止采集";
@@ -400,10 +565,37 @@ namespace YarnTaskMonitor
             int interval = (int)para;
             while (auto)
             {
-                if (!ParseHtmlAndSaveMySQL(CatchHtml()))
-                    break;
+                if (firstRun)
+                {
+                    firstRun = false;
+                    //如果是程序首次运行，无论如何都先创建一次数据表，利用create ... if not exists ... 避免exception
+                    lastDay = DateTime.Now.ToShortDateString().Replace("/", "");
+                    curSuffix = lastDay;
+                    if (!CreateMySQLTable(cls_Common.table + curSuffix))
+                        break;
+
+                    Delay(interval);
+                }
+
+                if (lastDay != DateTime.Now.ToShortDateString().Replace("/", ""))
+                {
+                    //如果日期发生变化，删除旧的数据表，创建新的数据表
+                    lastDay = DateTime.Now.ToShortDateString().Replace("/", "");
+                    string last7Day = DateTime.Now.AddDays(-7).ToShortDateString();
+                    curSuffix = lastDay;
+                    //先删除7日之前的表
+                    if (!DropMySQLTable(cls_Common.table + last7Day))
+                        break;
+
+                    //再创建今日的数据表，利用create ... if not exists ... 避免exception
+                    if (!CreateMySQLTable(cls_Common.table + lastDay))
+                        break;
+                }
 
                 Delay(interval);
+
+                if (!ParseHtmlAndSaveMySQL(CatchHtml()))
+                    break;
             }
             PostMess(cls_Common.hwndFrmMain, cls_Common.AUTO_RELEASE_UI);
         }

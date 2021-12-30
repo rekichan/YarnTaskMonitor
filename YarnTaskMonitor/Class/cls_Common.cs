@@ -9,6 +9,7 @@ namespace YarnTaskMonitor
         public static string table;
         public static string autoInterval;
         public static string taskBar;
+        public static string yarnWebUrl;
 
         //hwnd message
         public static IntPtr hwndFrmMain;

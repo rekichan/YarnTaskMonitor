@@ -31,6 +31,7 @@ namespace YarnTaskMonitor
             txb_Table.Text = cls_Common.table;
             txb_AutoInterval.Text = cls_Common.autoInterval;
             chk_TaskBar.Checked = cls_Common.taskBar.Equals("true");
+            txb_YarnWebUrl.Text = cls_Common.yarnWebUrl;
         }
         #endregion
 
@@ -45,11 +46,13 @@ namespace YarnTaskMonitor
             cls_Common.table = txb_Table.Text;
             cls_Common.autoInterval = txb_AutoInterval.Text;
             cls_Common.taskBar = chk_TaskBar.Checked ? "true" : "false";
+            cls_Common.yarnWebUrl = txb_YarnWebUrl.Text;
 
             config.IniWriteValue("setting", "connetionCmd", cls_Common.connetionCmd);
             config.IniWriteValue("setting", "table", cls_Common.table);
             config.IniWriteValue("setting", "autoInterval", cls_Common.autoInterval);
             config.IniWriteValue("setting", "taskBar", cls_Common.taskBar);
+            config.IniWriteValue("setting", "yarnWebUrl", cls_Common.yarnWebUrl);
             MessageBox.Show("保存成功", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }
