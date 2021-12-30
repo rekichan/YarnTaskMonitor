@@ -67,12 +67,21 @@
     <Compile Include="Form\frm_Setting.Designer.cs">
       <DependentUpon>frm_Setting.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form\frm_SQLInput.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form\frm_SQLInput.Designer.cs">
+      <DependentUpon>frm_SQLInput.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form\frm_Main.resx">
       <DependentUpon>frm_Main.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form\frm_Setting.resx">
       <DependentUpon>frm_Setting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form\frm_SQLInput.resx">
+      <DependentUpon>frm_SQLInput.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -98,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resource\favicon.ico" />
+    <Content Include="Resource\icons8-double-left-30.png" />
+    <Content Include="Resource\icons8-double-right-30.png" />
+    <Content Include="Resource\icons8-search-30.png" />
     <Content Include="Resource\icons8-数据库导出-30.png" />
     <Content Include="Resource\icons8-清空回收站-30.png" />
   </ItemGroup>
