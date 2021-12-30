@@ -57,6 +57,12 @@ namespace YarnTaskMonitor
             this.cms_Dgv = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmi_CopyText = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi_ObserveResource = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsb_Collect = new System.Windows.Forms.ToolStripButton();
+            this.tsb_AutoCollect = new System.Windows.Forms.ToolStripButton();
+            this.tsb_ConnectDatabase = new System.Windows.Forms.ToolStripButton();
+            this.tsb_Truncate = new System.Windows.Forms.ToolStripButton();
+            this.tsb_GetTask = new System.Windows.Forms.ToolStripButton();
+            this.tsb_Setting = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.cht_Main)).BeginInit();
             this.ts_Main.SuspendLayout();
             this.cms_Ico.SuspendLayout();
@@ -257,6 +263,60 @@ namespace YarnTaskMonitor
             this.tsmi_ObserveResource.Size = new System.Drawing.Size(124, 22);
             this.tsmi_ObserveResource.Text = "查看资源";
             this.tsmi_ObserveResource.Click += new System.EventHandler(this.tsmi_ObserveResource_Click);
+            // 
+            // tsb_Collect
+            // 
+            this.tsb_Collect.Image = global::YarnTaskMonitor.Properties.Resources.icons8_扳手_30;
+            this.tsb_Collect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Collect.Name = "tsb_Collect";
+            this.tsb_Collect.Size = new System.Drawing.Size(76, 22);
+            this.tsb_Collect.Text = "手动采集";
+            this.tsb_Collect.Click += new System.EventHandler(this.tsb_Collect_Click);
+            // 
+            // tsb_AutoCollect
+            // 
+            this.tsb_AutoCollect.Image = global::YarnTaskMonitor.Properties.Resources.icons8_电动_30;
+            this.tsb_AutoCollect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_AutoCollect.Name = "tsb_AutoCollect";
+            this.tsb_AutoCollect.Size = new System.Drawing.Size(76, 22);
+            this.tsb_AutoCollect.Text = "自动采集";
+            this.tsb_AutoCollect.Click += new System.EventHandler(this.tsb_AutoCollect_Click);
+            // 
+            // tsb_ConnectDatabase
+            // 
+            this.tsb_ConnectDatabase.Image = global::YarnTaskMonitor.Properties.Resources.icons8_连接的_30;
+            this.tsb_ConnectDatabase.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_ConnectDatabase.Name = "tsb_ConnectDatabase";
+            this.tsb_ConnectDatabase.Size = new System.Drawing.Size(88, 22);
+            this.tsb_ConnectDatabase.Text = "连接数据库";
+            this.tsb_ConnectDatabase.Click += new System.EventHandler(this.tsb_ConnectDatabase_Click);
+            // 
+            // tsb_Truncate
+            // 
+            this.tsb_Truncate.Image = global::YarnTaskMonitor.Properties.Resources.icons8_清空回收站_30;
+            this.tsb_Truncate.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Truncate.Name = "tsb_Truncate";
+            this.tsb_Truncate.Size = new System.Drawing.Size(88, 22);
+            this.tsb_Truncate.Text = "清空数据库";
+            this.tsb_Truncate.Click += new System.EventHandler(this.tsb_Truncate_Click);
+            // 
+            // tsb_GetTask
+            // 
+            this.tsb_GetTask.Image = global::YarnTaskMonitor.Properties.Resources.icons8_数据库导出_30;
+            this.tsb_GetTask.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_GetTask.Name = "tsb_GetTask";
+            this.tsb_GetTask.Size = new System.Drawing.Size(79, 22);
+            this.tsb_GetTask.Text = "获取Task";
+            this.tsb_GetTask.Click += new System.EventHandler(this.tsb_GetTask_Click);
+            // 
+            // tsb_Setting
+            // 
+            this.tsb_Setting.Image = global::YarnTaskMonitor.Properties.Resources.icons8_服务_30;
+            this.tsb_Setting.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Setting.Name = "tsb_Setting";
+            this.tsb_Setting.Size = new System.Drawing.Size(52, 22);
+            this.tsb_Setting.Text = "设置";
+            this.tsb_Setting.Click += new System.EventHandler(this.tsb_Setting_Click);
             // 
             // frm_Main
             // 
