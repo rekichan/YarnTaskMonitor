@@ -57,6 +57,9 @@ namespace YarnTaskMonitor
             this.cms_Dgv = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmi_CopyText = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi_ObserveResource = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsb_Setting = new System.Windows.Forms.ToolStripButton();
+=========
+>>>>>>>>> Temporary merge branch 2
             ((System.ComponentModel.ISupportInitialize)(this.cht_Main)).BeginInit();
             this.ts_Main.SuspendLayout();
             this.cms_Ico.SuspendLayout();
