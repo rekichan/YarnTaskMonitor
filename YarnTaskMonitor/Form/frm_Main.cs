@@ -542,11 +542,11 @@ namespace YarnTaskMonitor
                     "taskname varchar(100) ," +
                     "tasktype varchar(20) ," +
                     "queue varchar(30) ," +
-                    "starttime varchar(50) ," +
+                    "starttime timestamp ," +
                     "containers int ," +
                     "cores int ," +
                     "memory int ," +
-                    "inserttime varchar(50)) " +
+                    "inserttime timestamp) " +
                     "engine=innodb default charset=utf8mb3", tableName);
                 using (MySqlCommand mda = new MySqlCommand(sql, conn))
                 {
