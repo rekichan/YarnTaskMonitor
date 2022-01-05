@@ -20,11 +20,12 @@ namespace YarnTaskMonitor
         private bool auto;
         private bool firstRun = true;
         private bool forceClose;
+        private bool showDivisionTask;
         private string curSuffix;
         private string lastDay;
         private string selectedTaskId;
         private string selectedTaskName;
-        private int lastScrollValue;
+        private int lastInputVal;
         #endregion
 
         #region API
@@ -81,81 +82,47 @@ namespace YarnTaskMonitor
         #endregion
 
         #region Event
-        private void hsb_DivisionTasks_Scroll(object sender, ScrollEventArgs e)
+        private void tstb_AssignDivision_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!(char.IsNumber(e.KeyChar) || e.KeyChar == (char)8))
+                e.Handled = true;
+        }
+
+        private void tsb_AssignDivision_Click(object sender, EventArgs e)
         {
             //先判断是否符合查询条件
             if (!cls_Common.timeDivisionTask.Contains(selectedTaskName) || string.IsNullOrWhiteSpace(selectedTaskName) || string.IsNullOrWhiteSpace(selectedTaskId))
                 return;
 
-            //判断ScrollEventType是否已停止
-            if (e.Type == ScrollEventType.EndScroll)
-            {
-                hsb_DivisionTasks.Enabled = false;//防止快速刷新
-                HScrollBar hsb = (HScrollBar)sender;
-                List<int> cores = new List<int>();
-                List<int> memory = new List<int>();
-                List<DateTime> time = new List<DateTime>();
+            //判断输入的数值是否存在问题
+            string assign = tstb_AssignDivision.Text;
+            if (string.IsNullOrWhiteSpace(assign))
+                return;
+            int val = Convert.ToInt32(assign);
+            if (val < 0 || val > 23 || lastInputVal == val)
+                return;
+            lastInputVal = val;
 
-                //求出选择的时间段
-                int val = hsb.Value;//0-230
-                if (lastScrollValue == val)//防止滚动条一直滚动同一个位置
-                    return;
+            tsb_AssignDivision.Enabled = false;
 
-                lastScrollValue = val;
-                val /= 10;//0-23
-                //DateTime dt = DateTime.Now.Date;
-                DateTime dt = mc_Main.SelectionStart;
-                dt = dt.AddHours(val);
+            //DateTime dt = DateTime.Now.Date;
+            DateTime dt = mc_Main.SelectionStart;
+            dt = dt.AddHours(val);
 
-                //求出选择的日期
-                DateTime day = mc_Main.SelectionEnd;
-                string selectedDay = day.ToShortDateString().Replace("/", "");
+            //求出选择的日期
+            DateTime day = mc_Main.SelectionEnd;
+            string selectedDay = day.ToShortDateString().Replace("/", "");
 
-                //转义防止报错
-                selectedTaskName = selectedTaskName.Replace("'", "\\'");
+            //转义防止报错
+            selectedTaskName = selectedTaskName.Replace("'", "\\'");
 
-                //规定查询时间范围(1hour)
-                string prev = dt.ToString();
-                string next = dt.AddHours(1).ToString();
-                string sql = string.Format("select cores,memory,insertTime from {0} where taskId = '{1}' and taskName = '{2}' and insertTime >= '{3}' and insertTime < '{4}' order by insertTime asc", cls_Common.table + selectedDay, selectedTaskId, selectedTaskName, prev, next);
-                try
-                {
-                    using (MySqlConnection queryConn = new MySqlConnection(cls_Common.connetionCmd))
-                    {
-                        queryConn.Open();
-                        using (MySqlCommand cmd = new MySqlCommand(sql, queryConn))
-                        {
-                            using (MySqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    cores.Add((int)reader[0]);
-                                    memory.Add((int)reader[1]);
-                                    string buf = reader[2].ToString();
-                                    time.Add(DateTime.Parse(buf));
-                                }
-                                reader.Close();
-                            }
-                        }
-                        queryConn.Close();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.WriteExceptionLog(ex);
-                    MessageBox.Show("查询失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    hsb_DivisionTasks.Enabled = true;
-                    return;
-                }
-                //清空表格数据
-                cht_Main.Series["Memory"].Points.Clear();
-                cht_Main.Series["vCores"].Points.Clear();
+            //规定查询时间范围(1hour)
+            string prev = dt.ToString();
+            string next = dt.AddHours(1).ToString();
+            string sql = string.Format("select cores,memory,insertTime from {0} where taskId = '{1}' and taskName = '{2}' and insertTime >= '{3}' and insertTime < '{4}' order by insertTime asc", cls_Common.table + selectedDay, selectedTaskId, selectedTaskName, prev, next);
+            ExecuteSQLFillUpChart(sql);
 
-                //填充图表
-                cht_Main.Series["Memory"].Points.DataBindXY(time, memory);
-                cht_Main.Series["vCores"].Points.DataBindXY(time, cores);
-                hsb_DivisionTasks.Enabled = true;
-            }
+            tsb_AssignDivision.Enabled = false;
         }
 
         private void tsb_ExecuteSQL_Click(object sender, EventArgs e)
@@ -241,9 +208,15 @@ namespace YarnTaskMonitor
             int row = dgv_Trace.SelectedCells[0].RowIndex;
             string taskId = (string)dgv_Trace.Rows[row].Cells[0].Value;
             string taskName = (string)dgv_Trace.Rows[row].Cells[1].Value;
+            if(showDivisionTask)
+            {
+                //先检查是否在显示分时任务曲线，如果是再检测上次分时任务的id和taskName是否和本次相同，如果相同则不刷新曲线
+                if (selectedTaskId.Equals(taskId) && selectedTaskName.Equals(taskName))
+                    return;
+            }
             selectedTaskId = "";
             selectedTaskName = "";
-            lastScrollValue = 0;
+            lastInputVal = 0;
 
             DateTime dt = mc_Main.SelectionStart;
             string selectedDay = dt.ToShortDateString().Replace("/", "");
@@ -254,100 +227,24 @@ namespace YarnTaskMonitor
                 //分时任务选择时先显示0-1点的数据
                 selectedTaskId = taskId;
                 selectedTaskName = taskName;
-                hsb_DivisionTasks.Visible = true;
-                lastScrollValue = 0;
-                hsb_DivisionTasks.Value = 0;
-
-                List<int> initCores = new List<int>();
-                List<int> initMemory = new List<int>();
-                List<DateTime> initTime = new List<DateTime>();
-
-                string sql = string.Format("select cores,memory,insertTime from {0} where taskId = '{1}' and taskName = '{2}' and insertTime >= '{3}' and insertTime < '{4}' order by insertTime asc", cls_Common.table + selectedDay, selectedTaskId, selectedTaskName, dt.ToString(), dt.AddHours(1).ToString());
-                try
-                {
-                    using (MySqlConnection queryConn = new MySqlConnection(cls_Common.connetionCmd))
-                    {
-                        queryConn.Open();
-                        using (MySqlCommand cmd = new MySqlCommand(sql, queryConn))
-                        {
-                            using (MySqlDataReader reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    initCores.Add((int)reader[0]);
-                                    initMemory.Add((int)reader[1]);
-                                    string buf = reader[2].ToString();
-                                    initTime.Add(DateTime.Parse(buf));
-                                }
-                                reader.Close();
-                            }
-                        }
-                        queryConn.Close();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.WriteExceptionLog(ex);
-                    MessageBox.Show("查询失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-
-                //清空表格数据
-                cht_Main.Series["Memory"].Points.Clear();
-                cht_Main.Series["vCores"].Points.Clear();
-
-                //填充图表
-                cht_Main.Series["Memory"].Points.DataBindXY(initTime, initMemory);
-                cht_Main.Series["vCores"].Points.DataBindXY(initTime, initCores);
+                showDivisionTask = true;
+                tstb_AssignDivision.Enabled = true;
+                tsb_AssignDivision.Enabled = true;
+                lastInputVal = 0;
+                string divisionTaskSql = string.Format("select cores,memory,insertTime from {0} where taskId = '{1}' and taskName = '{2}' and insertTime >= '{3}' and insertTime < '{4}' order by insertTime asc", cls_Common.table + selectedDay, selectedTaskId, selectedTaskName, dt.ToString(), dt.AddHours(1).ToString());
+                ExecuteSQLFillUpChart(divisionTaskSql);
                 return;
             }
 
             //如果不是分时列表内的任务，则隐藏scrollbar
-            hsb_DivisionTasks.Visible = false;
-
-            //实例化链表存储数据
-            List<int> cores = new List<int>();
-            List<int> memory = new List<int>();
-            List<DateTime> time = new List<DateTime>();
+            showDivisionTask = false;
+            tstb_AssignDivision.Enabled = false;
+            tsb_AssignDivision.Enabled = false;
 
             //预处理，转义防止错误
             taskName = taskName.Replace("'", "\\'");
-            try
-            {
-                string sql = "select cores,memory,insertTime from " + cls_Common.table + selectedDay + " where taskId = '" + taskId + "' and taskName  = '" + taskName + "' order by insertTime asc";
-                using (MySqlConnection queryConn = new MySqlConnection(cls_Common.connetionCmd))
-                {
-                    queryConn.Open();
-                    using (MySqlCommand cmd = new MySqlCommand(sql, queryConn))
-                    {
-                        using (MySqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                cores.Add((int)reader[0]);
-                                memory.Add((int)reader[1]);
-                                string buf = reader[2].ToString();
-                                time.Add(DateTime.Parse(buf));
-                            }
-                            reader.Close();
-                        }
-                    }
-                    queryConn.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.WriteExceptionLog(ex);
-                MessageBox.Show("查询失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            //清空表格数据
-            cht_Main.Series["Memory"].Points.Clear();
-            cht_Main.Series["vCores"].Points.Clear();
-
-            //填充图表
-            cht_Main.Series["Memory"].Points.DataBindXY(time, memory);
-            cht_Main.Series["vCores"].Points.DataBindXY(time, cores);
+            string CommonSql = "select cores,memory,insertTime from " + cls_Common.table + selectedDay + " where taskId = '" + taskId + "' and taskName  = '" + taskName + "' order by insertTime asc";
+            ExecuteSQLFillUpChart(CommonSql);
         }
 
         private void ico_Main_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -458,10 +355,10 @@ namespace YarnTaskMonitor
 
         #region Function
         /// <summary>
-        /// 手动执行SQL
+        /// 执行SQL填充Chart
         /// </summary>
-        /// <param name="sql"></param>
-        private void ManualExecuteSQL(string sql)
+        /// <param name="sql">SQL语句</param>
+        private void ExecuteSQLFillUpChart(string sql)
         {
             try
             {
@@ -851,7 +748,14 @@ namespace YarnTaskMonitor
 
                 case cls_Common.MANUAL_EXECUTE_SQL:
                     string sql = System.Runtime.InteropServices.Marshal.PtrToStringAnsi(m.WParam);
-                    ManualExecuteSQL(sql);
+                    ExecuteSQLFillUpChart(sql);
+                    //使用手动查询SQL时，关闭scrollbar
+                    selectedTaskId = "";
+                    selectedTaskName = "";
+                    lastInputVal = 0;
+                    showDivisionTask = false;
+                    tsb_AssignDivision.Enabled = false;
+                    tstb_AssignDivision.Enabled = false;
                     System.Runtime.InteropServices.Marshal.FreeHGlobal(m.WParam);
                     break;
 

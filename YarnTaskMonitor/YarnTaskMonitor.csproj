@@ -110,6 +110,7 @@
     <Content Include="Resource\icons8-double-left-30.png" />
     <Content Include="Resource\icons8-double-right-30.png" />
     <Content Include="Resource\icons8-search-30.png" />
+    <Content Include="Resource\icons8-spade-30.png" />
     <Content Include="Resource\icons8-数据库导出-30.png" />
     <Content Include="Resource\icons8-清空回收站-30.png" />
   </ItemGroup>

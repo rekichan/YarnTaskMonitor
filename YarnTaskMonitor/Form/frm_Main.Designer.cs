@@ -39,8 +39,18 @@ namespace YarnTaskMonitor
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_Main));
             this.cht_Main = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.ts_Main = new System.Windows.Forms.ToolStrip();
+            this.tsb_Collect = new System.Windows.Forms.ToolStripButton();
+            this.tsb_AutoCollect = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_ConnectDatabase = new System.Windows.Forms.ToolStripButton();
+            this.tsb_Truncate = new System.Windows.Forms.ToolStripButton();
+            this.tsb_GetTask = new System.Windows.Forms.ToolStripButton();
+            this.tsb_ExecuteSQL = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsb_Setting = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.tstb_AssignDivision = new System.Windows.Forms.ToolStripTextBox();
+            this.tsb_AssignDivision = new System.Windows.Forms.ToolStripButton();
             this.ico_Main = new System.Windows.Forms.NotifyIcon(this.components);
             this.cms_Ico = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmi_ShowMain = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,14 +60,6 @@ namespace YarnTaskMonitor
             this.tsmi_CopyText = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmi_ObserveResource = new System.Windows.Forms.ToolStripMenuItem();
             this.mc_Main = new System.Windows.Forms.MonthCalendar();
-            this.hsb_DivisionTasks = new System.Windows.Forms.HScrollBar();
-            this.tsb_Collect = new System.Windows.Forms.ToolStripButton();
-            this.tsb_AutoCollect = new System.Windows.Forms.ToolStripButton();
-            this.tsb_ConnectDatabase = new System.Windows.Forms.ToolStripButton();
-            this.tsb_Truncate = new System.Windows.Forms.ToolStripButton();
-            this.tsb_GetTask = new System.Windows.Forms.ToolStripButton();
-            this.tsb_ExecuteSQL = new System.Windows.Forms.ToolStripButton();
-            this.tsb_Setting = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.cht_Main)).BeginInit();
             this.ts_Main.SuspendLayout();
             this.cms_Ico.SuspendLayout();
@@ -77,8 +79,6 @@ namespace YarnTaskMonitor
             chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
             chartArea2.AxisY.Title = "vCores";
             chartArea2.CursorX.Interval = 0D;
-            chartArea2.CursorX.IsUserEnabled = true;
-            chartArea2.CursorX.IsUserSelectionEnabled = true;
             chartArea2.Name = "ca_Cores";
             this.cht_Main.ChartAreas.Add(chartArea1);
             this.cht_Main.ChartAreas.Add(chartArea2);
@@ -121,22 +121,112 @@ namespace YarnTaskMonitor
             this.tsb_GetTask,
             this.tsb_ExecuteSQL,
             this.toolStripSeparator2,
-            this.tsb_Setting});
+            this.tsb_Setting,
+            this.toolStripSeparator3,
+            this.tstb_AssignDivision,
+            this.tsb_AssignDivision});
             this.ts_Main.Location = new System.Drawing.Point(0, 0);
             this.ts_Main.Name = "ts_Main";
             this.ts_Main.Size = new System.Drawing.Size(1008, 25);
             this.ts_Main.TabIndex = 1;
             this.ts_Main.Text = "toolStrip1";
             // 
+            // tsb_Collect
+            // 
+            this.tsb_Collect.Image = global::YarnTaskMonitor.Properties.Resources.icons8_扳手_30;
+            this.tsb_Collect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Collect.Name = "tsb_Collect";
+            this.tsb_Collect.Size = new System.Drawing.Size(76, 22);
+            this.tsb_Collect.Text = "手动采集";
+            this.tsb_Collect.Click += new System.EventHandler(this.tsb_Collect_Click);
+            // 
+            // tsb_AutoCollect
+            // 
+            this.tsb_AutoCollect.Image = global::YarnTaskMonitor.Properties.Resources.icons8_电动_30;
+            this.tsb_AutoCollect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_AutoCollect.Name = "tsb_AutoCollect";
+            this.tsb_AutoCollect.Size = new System.Drawing.Size(76, 22);
+            this.tsb_AutoCollect.Text = "自动采集";
+            this.tsb_AutoCollect.Click += new System.EventHandler(this.tsb_AutoCollect_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
+            // tsb_ConnectDatabase
+            // 
+            this.tsb_ConnectDatabase.Image = global::YarnTaskMonitor.Properties.Resources.icons8_连接的_30;
+            this.tsb_ConnectDatabase.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_ConnectDatabase.Name = "tsb_ConnectDatabase";
+            this.tsb_ConnectDatabase.Size = new System.Drawing.Size(88, 22);
+            this.tsb_ConnectDatabase.Text = "连接数据库";
+            this.tsb_ConnectDatabase.Click += new System.EventHandler(this.tsb_ConnectDatabase_Click);
+            // 
+            // tsb_Truncate
+            // 
+            this.tsb_Truncate.Image = global::YarnTaskMonitor.Properties.Resources.icons8_清空回收站_30;
+            this.tsb_Truncate.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Truncate.Name = "tsb_Truncate";
+            this.tsb_Truncate.Size = new System.Drawing.Size(88, 22);
+            this.tsb_Truncate.Text = "清空数据表";
+            this.tsb_Truncate.Click += new System.EventHandler(this.tsb_Truncate_Click);
+            // 
+            // tsb_GetTask
+            // 
+            this.tsb_GetTask.Image = global::YarnTaskMonitor.Properties.Resources.icons8_数据库导出_30;
+            this.tsb_GetTask.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_GetTask.Name = "tsb_GetTask";
+            this.tsb_GetTask.Size = new System.Drawing.Size(79, 22);
+            this.tsb_GetTask.Text = "获取Task";
+            this.tsb_GetTask.Click += new System.EventHandler(this.tsb_GetTask_Click);
+            // 
+            // tsb_ExecuteSQL
+            // 
+            this.tsb_ExecuteSQL.Image = global::YarnTaskMonitor.Properties.Resources.icons8_search_30;
+            this.tsb_ExecuteSQL.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_ExecuteSQL.Name = "tsb_ExecuteSQL";
+            this.tsb_ExecuteSQL.Size = new System.Drawing.Size(75, 22);
+            this.tsb_ExecuteSQL.Text = "执行SQL";
+            this.tsb_ExecuteSQL.Click += new System.EventHandler(this.tsb_ExecuteSQL_Click);
+            // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsb_Setting
+            // 
+            this.tsb_Setting.Image = global::YarnTaskMonitor.Properties.Resources.icons8_服务_30;
+            this.tsb_Setting.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_Setting.Name = "tsb_Setting";
+            this.tsb_Setting.Size = new System.Drawing.Size(76, 22);
+            this.tsb_Setting.Text = "系统设置";
+            this.tsb_Setting.Click += new System.EventHandler(this.tsb_Setting_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tstb_AssignDivision
+            // 
+            this.tstb_AssignDivision.Enabled = false;
+            this.tstb_AssignDivision.Name = "tstb_AssignDivision";
+            this.tstb_AssignDivision.Size = new System.Drawing.Size(25, 25);
+            this.tstb_AssignDivision.Text = "0";
+            this.tstb_AssignDivision.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tstb_AssignDivision.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tstb_AssignDivision_KeyPress);
+            // 
+            // tsb_AssignDivision
+            // 
+            this.tsb_AssignDivision.Enabled = false;
+            this.tsb_AssignDivision.Image = global::YarnTaskMonitor.Properties.Resources.icons8_spade_30;
+            this.tsb_AssignDivision.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsb_AssignDivision.Name = "tsb_AssignDivision";
+            this.tsb_AssignDivision.Size = new System.Drawing.Size(76, 22);
+            this.tsb_AssignDivision.Text = "跳转分时";
+            this.tsb_AssignDivision.Click += new System.EventHandler(this.tsb_AssignDivision_Click);
             // 
             // ico_Main
             // 
@@ -216,88 +306,11 @@ namespace YarnTaskMonitor
             this.mc_Main.ShowToday = false;
             this.mc_Main.TabIndex = 3;
             // 
-            // hsb_DivisionTasks
-            // 
-            this.hsb_DivisionTasks.Location = new System.Drawing.Point(105, 546);
-            this.hsb_DivisionTasks.Maximum = 230;
-            this.hsb_DivisionTasks.MaximumSize = new System.Drawing.Size(753, 17);
-            this.hsb_DivisionTasks.MinimumSize = new System.Drawing.Size(753, 17);
-            this.hsb_DivisionTasks.Name = "hsb_DivisionTasks";
-            this.hsb_DivisionTasks.Size = new System.Drawing.Size(753, 17);
-            this.hsb_DivisionTasks.SmallChange = 10;
-            this.hsb_DivisionTasks.TabIndex = 6;
-            this.hsb_DivisionTasks.Visible = false;
-            this.hsb_DivisionTasks.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hsb_DivisionTasks_Scroll);
-            // 
-            // tsb_Collect
-            // 
-            this.tsb_Collect.Image = global::YarnTaskMonitor.Properties.Resources.icons8_扳手_30;
-            this.tsb_Collect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_Collect.Name = "tsb_Collect";
-            this.tsb_Collect.Size = new System.Drawing.Size(76, 22);
-            this.tsb_Collect.Text = "手动采集";
-            this.tsb_Collect.Click += new System.EventHandler(this.tsb_Collect_Click);
-            // 
-            // tsb_AutoCollect
-            // 
-            this.tsb_AutoCollect.Image = global::YarnTaskMonitor.Properties.Resources.icons8_电动_30;
-            this.tsb_AutoCollect.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_AutoCollect.Name = "tsb_AutoCollect";
-            this.tsb_AutoCollect.Size = new System.Drawing.Size(76, 22);
-            this.tsb_AutoCollect.Text = "自动采集";
-            this.tsb_AutoCollect.Click += new System.EventHandler(this.tsb_AutoCollect_Click);
-            // 
-            // tsb_ConnectDatabase
-            // 
-            this.tsb_ConnectDatabase.Image = global::YarnTaskMonitor.Properties.Resources.icons8_连接的_30;
-            this.tsb_ConnectDatabase.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_ConnectDatabase.Name = "tsb_ConnectDatabase";
-            this.tsb_ConnectDatabase.Size = new System.Drawing.Size(88, 22);
-            this.tsb_ConnectDatabase.Text = "连接数据库";
-            this.tsb_ConnectDatabase.Click += new System.EventHandler(this.tsb_ConnectDatabase_Click);
-            // 
-            // tsb_Truncate
-            // 
-            this.tsb_Truncate.Image = global::YarnTaskMonitor.Properties.Resources.icons8_清空回收站_30;
-            this.tsb_Truncate.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_Truncate.Name = "tsb_Truncate";
-            this.tsb_Truncate.Size = new System.Drawing.Size(88, 22);
-            this.tsb_Truncate.Text = "清空数据表";
-            this.tsb_Truncate.Click += new System.EventHandler(this.tsb_Truncate_Click);
-            // 
-            // tsb_GetTask
-            // 
-            this.tsb_GetTask.Image = global::YarnTaskMonitor.Properties.Resources.icons8_数据库导出_30;
-            this.tsb_GetTask.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_GetTask.Name = "tsb_GetTask";
-            this.tsb_GetTask.Size = new System.Drawing.Size(79, 22);
-            this.tsb_GetTask.Text = "获取Task";
-            this.tsb_GetTask.Click += new System.EventHandler(this.tsb_GetTask_Click);
-            // 
-            // tsb_ExecuteSQL
-            // 
-            this.tsb_ExecuteSQL.Image = global::YarnTaskMonitor.Properties.Resources.icons8_search_30;
-            this.tsb_ExecuteSQL.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_ExecuteSQL.Name = "tsb_ExecuteSQL";
-            this.tsb_ExecuteSQL.Size = new System.Drawing.Size(75, 22);
-            this.tsb_ExecuteSQL.Text = "执行SQL";
-            this.tsb_ExecuteSQL.Click += new System.EventHandler(this.tsb_ExecuteSQL_Click);
-            // 
-            // tsb_Setting
-            // 
-            this.tsb_Setting.Image = global::YarnTaskMonitor.Properties.Resources.icons8_服务_30;
-            this.tsb_Setting.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsb_Setting.Name = "tsb_Setting";
-            this.tsb_Setting.Size = new System.Drawing.Size(52, 22);
-            this.tsb_Setting.Text = "设置";
-            this.tsb_Setting.Click += new System.EventHandler(this.tsb_Setting_Click);
-            // 
             // frm_Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1008, 729);
-            this.Controls.Add(this.hsb_DivisionTasks);
             this.Controls.Add(this.dgv_Trace);
             this.Controls.Add(this.mc_Main);
             this.Controls.Add(this.ts_Main);
@@ -345,8 +358,10 @@ namespace YarnTaskMonitor
         private System.Windows.Forms.ToolStripMenuItem tsmi_ObserveResource;
         private System.Windows.Forms.ToolStripButton tsb_Truncate;
         private System.Windows.Forms.MonthCalendar mc_Main;
-        private System.Windows.Forms.HScrollBar hsb_DivisionTasks;
         private System.Windows.Forms.ToolStripButton tsb_ExecuteSQL;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripTextBox tstb_AssignDivision;
+        private System.Windows.Forms.ToolStripButton tsb_AssignDivision;
     }
 }
 
