@@ -122,7 +122,7 @@ namespace YarnTaskMonitor
             string sql = string.Format("select cores,memory,insertTime from {0} where taskId = '{1}' and taskName = '{2}' and insertTime >= '{3}' and insertTime < '{4}' order by insertTime asc", cls_Common.table + selectedDay, selectedTaskId, selectedTaskName, prev, next);
             ExecuteSQLFillUpChart(sql);
 
-            tsb_AssignDivision.Enabled = false;
+            tsb_AssignDivision.Enabled = true;
         }
 
         private void tsb_ExecuteSQL_Click(object sender, EventArgs e)
@@ -220,6 +220,12 @@ namespace YarnTaskMonitor
 
             DateTime dt = mc_Main.SelectionStart;
             string selectedDay = dt.ToShortDateString().Replace("/", "");
+
+            //重绘时还原chart倍率，显示chart游标
+            cht_Main.ChartAreas["ca_Memory"].AxisX.ScaleView.ZoomReset(0);
+            cht_Main.ChartAreas["ca_Cores"].AxisX.ScaleView.ZoomReset(0);
+            cht_Main.ChartAreas["ca_Memory"].CursorX.IsUserEnabled = true;
+            cht_Main.ChartAreas["ca_Memory"].CursorX.IsUserSelectionEnabled = true;
 
             if (cls_Common.timeDivisionTask.Contains(taskName))
             {

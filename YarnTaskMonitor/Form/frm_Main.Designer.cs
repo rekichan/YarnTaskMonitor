@@ -73,8 +73,6 @@ namespace YarnTaskMonitor
             chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
             chartArea1.AxisY.Title = "Memory(GB)";
             chartArea1.CursorX.Interval = 0D;
-            chartArea1.CursorX.IsUserEnabled = true;
-            chartArea1.CursorX.IsUserSelectionEnabled = true;
             chartArea1.Name = "ca_Memory";
             chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
             chartArea2.AxisY.Title = "vCores";
@@ -283,19 +281,19 @@ namespace YarnTaskMonitor
             this.tsmi_CopyText,
             this.tsmi_ObserveResource});
             this.cms_Dgv.Name = "cms_Dgv";
-            this.cms_Dgv.Size = new System.Drawing.Size(125, 48);
+            this.cms_Dgv.Size = new System.Drawing.Size(181, 70);
             // 
             // tsmi_CopyText
             // 
             this.tsmi_CopyText.Name = "tsmi_CopyText";
-            this.tsmi_CopyText.Size = new System.Drawing.Size(124, 22);
+            this.tsmi_CopyText.Size = new System.Drawing.Size(180, 22);
             this.tsmi_CopyText.Text = "复制本项";
             this.tsmi_CopyText.Click += new System.EventHandler(this.tsmi_CopyText_Click);
             // 
             // tsmi_ObserveResource
             // 
             this.tsmi_ObserveResource.Name = "tsmi_ObserveResource";
-            this.tsmi_ObserveResource.Size = new System.Drawing.Size(124, 22);
+            this.tsmi_ObserveResource.Size = new System.Drawing.Size(180, 22);
             this.tsmi_ObserveResource.Text = "查看资源";
             this.tsmi_ObserveResource.Click += new System.EventHandler(this.tsmi_ObserveResource_Click);
             // 
