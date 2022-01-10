@@ -20,6 +20,7 @@ namespace YarnTaskMonitor
         public const int AUTO_LOCK_UI = USER + 1;
         public const int AUTO_RELEASE_UI = AUTO_LOCK_UI + 1;
         public const int MANUAL_EXECUTE_SQL = AUTO_RELEASE_UI + 1;
+        public const int CHANGE_DATE_SELECTED = MANUAL_EXECUTE_SQL + 1;
 
     }
 }

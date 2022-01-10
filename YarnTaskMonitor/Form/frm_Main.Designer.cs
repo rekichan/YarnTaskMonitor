@@ -281,25 +281,26 @@ namespace YarnTaskMonitor
             this.tsmi_CopyText,
             this.tsmi_ObserveResource});
             this.cms_Dgv.Name = "cms_Dgv";
-            this.cms_Dgv.Size = new System.Drawing.Size(181, 70);
+            this.cms_Dgv.Size = new System.Drawing.Size(125, 48);
             // 
             // tsmi_CopyText
             // 
             this.tsmi_CopyText.Name = "tsmi_CopyText";
-            this.tsmi_CopyText.Size = new System.Drawing.Size(180, 22);
+            this.tsmi_CopyText.Size = new System.Drawing.Size(124, 22);
             this.tsmi_CopyText.Text = "复制本项";
             this.tsmi_CopyText.Click += new System.EventHandler(this.tsmi_CopyText_Click);
             // 
             // tsmi_ObserveResource
             // 
             this.tsmi_ObserveResource.Name = "tsmi_ObserveResource";
-            this.tsmi_ObserveResource.Size = new System.Drawing.Size(180, 22);
+            this.tsmi_ObserveResource.Size = new System.Drawing.Size(124, 22);
             this.tsmi_ObserveResource.Text = "查看资源";
             this.tsmi_ObserveResource.Click += new System.EventHandler(this.tsmi_ObserveResource_Click);
             // 
             // mc_Main
             // 
             this.mc_Main.Location = new System.Drawing.Point(789, 559);
+            this.mc_Main.MaxSelectionCount = 1;
             this.mc_Main.Name = "mc_Main";
             this.mc_Main.ShowToday = false;
             this.mc_Main.TabIndex = 3;

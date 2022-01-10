@@ -37,6 +37,16 @@ namespace YarnTaskMonitor
         #endregion
 
         #region Event
+        private void lsb_TimeDivisionTask_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                int index = lsb_TimeDivisionTask.IndexFromPoint(e.Location);
+                if (index >= 0)
+                    lsb_TimeDivisionTask.SelectedIndex = index;
+            }
+        }
+
         private void btn_AddTimeDivisionTask_Click(object sender, EventArgs e)
         {
             string taskName = txb_TimeDivisionTask.Text;

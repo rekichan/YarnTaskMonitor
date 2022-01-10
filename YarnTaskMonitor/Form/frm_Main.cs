@@ -702,6 +702,9 @@ namespace YarnTaskMonitor
                     //再创建今日的数据表，利用create ... if not exists ... 避免exception
                     if (!CreateMySQLTable(cls_Common.table + lastDay))
                         break;
+
+                    //当日期发生变化时切换calendar控件的日期
+                    PostMess(cls_Common.hwndFrmMain, cls_Common.CHANGE_DATE_SELECTED);
                 }
 
                 Delay(interval);
@@ -763,6 +766,10 @@ namespace YarnTaskMonitor
                     tsb_AssignDivision.Enabled = false;
                     tstb_AssignDivision.Enabled = false;
                     System.Runtime.InteropServices.Marshal.FreeHGlobal(m.WParam);
+                    break;
+
+                case cls_Common.CHANGE_DATE_SELECTED:
+                    mc_Main.SelectionStart = DateTime.Now;
                     break;
 
                 default:

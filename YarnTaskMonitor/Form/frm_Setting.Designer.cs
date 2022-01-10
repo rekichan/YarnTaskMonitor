@@ -164,6 +164,7 @@ namespace YarnTaskMonitor
             this.lsb_TimeDivisionTask.ScrollAlwaysVisible = true;
             this.lsb_TimeDivisionTask.Size = new System.Drawing.Size(290, 106);
             this.lsb_TimeDivisionTask.TabIndex = 11;
+            this.lsb_TimeDivisionTask.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lsb_TimeDivisionTask_MouseDown);
             // 
             // cms_Lsb
             // 
