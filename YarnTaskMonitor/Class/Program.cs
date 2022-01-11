@@ -41,7 +41,7 @@ namespace YarnTaskMonitor
             {
                 MessageBox.Show("Another Instance is Already Running", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 //There is another instance of this process
-                HandleRunningInstance(instance);
+                //HandleRunningInstance(instance);
             }
                 
         }

@@ -540,10 +540,11 @@ namespace YarnTaskMonitor
                 reader.Dispose();
                 datastream.Close();
                 response.Close();
-                GC.Collect();
+                //GC.Collect(); //让系统自动GC
             }
             catch (Exception ex)
             {
+                MessageBox.Show("爬取Web数据失败", "Warn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 logger.WriteExceptionLog(ex);
                 return null;
             }
@@ -753,6 +754,7 @@ namespace YarnTaskMonitor
 
                 case cls_Common.AUTO_RELEASE_UI:
                     AutoLockUI(true);
+                    this.Visible = true;
                     break;
 
                 case cls_Common.MANUAL_EXECUTE_SQL:
