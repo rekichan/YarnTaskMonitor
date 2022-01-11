@@ -16,8 +16,9 @@ namespace YarnTaskMonitor
         private static extern bool ShowWindowAsync(IntPtr hWnd, int cmdShow);
         [System.Runtime.InteropServices.DllImport("User32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
-        //private const int WS_SHOWNORMAL = 1; //正常弹出窗体
-        private const int WS_SHOWNOACTIVATE = 4; //激活窗体，恢复窗体，还原窗体
+
+        private const int WS_SHOWNORMAL = 1; //正常弹出窗体
+        //private const int WS_SHOWNOACTIVATE = 4; //激活窗体，恢复窗体，还原窗体
         //private const int WS_SHOW = 5; //显示窗体，最小化时不会最大化
         #endregion
 
@@ -76,7 +77,7 @@ namespace YarnTaskMonitor
         private static void HandleRunningInstance(Process instance)
         {
             //Make sure the window is not minimized or maximized   
-            ShowWindowAsync(instance.MainWindowHandle, WS_SHOWNOACTIVATE);
+            ShowWindowAsync(instance.MainWindowHandle, WS_SHOWNORMAL);
             //Set the real intance to foreground window
             SetForegroundWindow(instance.MainWindowHandle);
         }
