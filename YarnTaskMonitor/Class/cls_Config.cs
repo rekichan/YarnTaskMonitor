@@ -9,7 +9,7 @@ namespace YarnTaskMonitor
     {
 
         #region Properties
-        public static cls_Config config;
+        private static cls_Config config;
         private object lockobject;//多线程被锁对象
         private string iniPath;
         #endregion
